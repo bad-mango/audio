@@ -1,9 +1,15 @@
 # Define paths
 $tempDir = [System.IO.Path]::GetTempPath()
+$naudioDir = Join-Path $tempDir "Naudio"
 $ffmpegZipUrl = "https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip"
-$ffmpegZipPath = Join-Path $tempDir "ffmpeg.zip"
-$ffmpegExtractPath = Join-Path $tempDir "ffmpeg"
+$ffmpegZipPath = Join-Path $naudioDir "ffmpeg.zip"
+$ffmpegExtractPath = Join-Path $naudioDir "ffmpeg"
 $ffmpegExePath = Join-Path $ffmpegExtractPath "ffmpeg-*-essentials_build/bin/ffmpeg.exe"
+
+# Create Naudio directory if it doesn't exist
+if (-not (Test-Path $naudioDir)) {
+    New-Item -ItemType Directory -Path $naudioDir | Out-Null
+}
 
 # Download FFmpeg if not already downloaded
 if (-not (Test-Path $ffmpegExePath)) {
