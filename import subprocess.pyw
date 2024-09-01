@@ -33,7 +33,7 @@ def hide_console():
 hide_console()
 
 # Set parameters for the recording
-duration = 2 * 60  # 2 minutes total duration
+duration = 5 * 60  # 5 minutes total duration
 sample_rate = 44100  # Hz
 channels = 1  # Mono
 
