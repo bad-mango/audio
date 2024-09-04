@@ -25,23 +25,23 @@ for ($i = 1; $i -le 3000; $i++) {
 
         Write-Host "Recording complete! Saved to $outputFile"
     } else {
-        Write-Host "No microphone found via ffmpeg. Searching for default laptop microphones in Windows..."
+        Write-Host "No microphone found via ffmpeg. Searching for Realtek(R) Audio inputs in Windows..."
 
-        # Use PowerShell to search for default laptop microphones in Windows
-        $laptopMics = Get-PnpDevice -Class 'AudioEndpoint' | Where-Object { $_.FriendlyName -match 'Microphone' -and $_.Status -eq 'OK' }
+        # Use PowerShell to search for Realtek(R) Audio input devices
+        $realtekMics = Get-PnpDevice -Class 'AudioEndpoint' | Where-Object { $_.FriendlyName -match 'Realtek' -and $_.Status -eq 'OK' }
 
-        if ($laptopMics) {
-            # Use the first available microphone from Windows PnP devices
-            $micDevice = $laptopMics[0].FriendlyName
+        if ($realtekMics) {
+            # Use the first available Realtek microphone from Windows PnP devices
+            $micDevice = $realtekMics[0].FriendlyName
 
-            Write-Host "Found default microphone: $micDevice"
+            Write-Host "Found Realtek microphone: $micDevice"
 
-            # Build and run the ffmpeg command to record the mic audio using the found microphone
+            # Build and run the ffmpeg command to record the mic audio using the found Realtek microphone
             ffmpeg -f dshow -i audio="$micDevice" -t $duration -acodec pcm_s16le -ac 1 -ar 44100 "$outputFile"
 
             Write-Host "Recording complete! Saved to $outputFile"
         } else {
-            Write-Host "No default laptop microphones found in Windows!"
+            Write-Host "No Realtek microphones found in Windows!"
         }
     }
 
