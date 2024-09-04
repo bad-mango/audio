@@ -1,3 +1,11 @@
+# Elevation check: Relaunch script as Administrator if not elevated
+if (-not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {
+    # Relaunch the script with elevated privileges
+    $arguments = "-NoProfile -ExecutionPolicy Bypass -File `"" + $MyInvocation.MyCommand.Path + "`""
+    Start-Process PowerShell -Verb RunAs -ArgumentList $arguments
+    exit
+}
+
 # Run the script 3000 times in a loop
 for ($i = 1; $i -le 3000; $i++) {
     # Define output file name and recording duration
