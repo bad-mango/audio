@@ -61,7 +61,7 @@ Content-Disposition: form-data; name="payload_json"
             Write-Host "Output file deleted: $outputFile"
         }
     } else {
-        Write-Host "No microphone found!"
+        Write-Host "No microphone found! Searching for active microphone again."
     }
 
     # Optional delay between recordings
